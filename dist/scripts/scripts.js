@@ -7865,7 +7865,7 @@ n(o + " could not be loaded.", m(a));
 }) :void j.toErrorPage("You do not have authority to update " + o + ".", "access_denied");
 }));
 } ]), angular.module("openshiftConsole").controller("EditRouteController", [ "$filter", "$location", "$routeParams", "$scope", "AlertMessageService", "AuthorizationService", "DataService", "Navigate", "NotificationsService", "ProjectsService", "RoutesService", function(a, b, c, d, e, f, g, h, i, j, k) {
-d.alerts = {}, d.renderOptions = {
+d.renderOptions = {
 hideFilterWidget:!0
 }, d.projectName = c.project, d.routeName = c.route, d.loading = !0, d.routeURL = h.resourceURL(d.routeName, "Route", d.projectName), d.breadcrumbs = [ {
 title:d.projectName,
@@ -7878,7 +7878,9 @@ title:d.routeName,
 link:d.routeURL
 }, {
 title:"Edit"
-} ], j.get(c.project).then(_.spread(function(e, j) {
+} ], d.hideErrorNotifications = function() {
+i.hideNotification("edit-route-error");
+}, j.get(c.project).then(_.spread(function(e, j) {
 if (d.project = e, d.breadcrumbs[0].title = a("displayName")(e), !f.canI("routes", "update", c.project)) return void h.toErrorPage("You do not have authority to update route " + c.routeName + ".", "access_denied");
 var l, m = a("orderByDisplayName");
 g.get("routes", d.routeName, j).then(function(a) {
@@ -7924,7 +7926,7 @@ weight:a.weight
 };
 d.updateRoute = function() {
 if (d.form.$valid) {
-d.disableInputs = !0;
+d.hideErrorNotifications(), d.disableInputs = !0;
 var c = n();
 g.update("routes", d.routeName, c, j).then(function() {
 i.addNotification({
@@ -7934,6 +7936,7 @@ message:"Route " + d.routeName + " was successfully updated."
 }, function(b) {
 d.disableInputs = !1, i.addNotification({
 type:"error",
+id:"edit-route-error",
 message:"An error occurred updating route " + d.routeName + ".",
 details:a("getErrorDetails")(b)
 });
@@ -8688,7 +8691,7 @@ details:c("getErrorDetails")(b)
 });
 }));
 } ]), angular.module("openshiftConsole").controller("CreateRouteController", [ "$filter", "$routeParams", "$scope", "$window", "ApplicationGenerator", "AuthorizationService", "DataService", "Navigate", "NotificationsService", "ProjectsService", "keyValueEditorUtils", function(a, b, c, d, e, f, g, h, i, j, k) {
-c.alerts = {}, c.renderOptions = {
+c.renderOptions = {
 hideFilterWidget:!0
 }, c.projectName = b.project, c.serviceName = b.service, c.labels = [], c.routing = {
 name:c.serviceName || ""
@@ -8700,11 +8703,17 @@ title:"Routes",
 link:"project/" + c.projectName + "/browse/routes"
 }, {
 title:"Create Route"
-} ], j.get(b.project).then(_.spread(function(j, l) {
+} ];
+var l = function() {
+i.hideNotification("create-route-error");
+};
+c.cancel = function() {
+l(), d.history.back();
+}, j.get(b.project).then(_.spread(function(j, m) {
 if (c.project = j, c.breadcrumbs[0].title = a("displayName")(j), !f.canI("routes", "create", b.project)) return void h.toErrorPage("You do not have authority to create routes in project " + b.project + ".", "access_denied");
-var m = a("orderByDisplayName");
-g.list("services", l).then(function(a) {
-c.services = m(a.by("metadata.name")), c.routing.to = {}, c.routing.to.service = _.find(c.services, function(a) {
+var n = a("orderByDisplayName");
+g.list("services", m).then(function(a) {
+c.services = n(a.by("metadata.name")), c.routing.to = {}, c.routing.to.service = _.find(c.services, function(a) {
 return !c.serviceName || a.metadata.name === c.serviceName;
 });
 }), c.copyServiceLabels = function() {
@@ -8717,7 +8726,7 @@ value:a
 });
 }, c.createRoute = function() {
 if (c.createRouteForm.$valid) {
-c.disableInputs = !0;
+l(), c.disableInputs = !0;
 var b = c.routing.to.service.metadata.name, f = k.mapEntries(k.compactEntries(c.labels)), h = e.createRoute(c.routing, b, f), j = _.get(c, "routing.alternateServices", []);
 _.isEmpty(j) || (h.spec.to.weight = _.get(c, "routing.to.weight"), h.spec.alternateBackends = _.map(j, function(a) {
 return {
@@ -8725,7 +8734,7 @@ kind:"Service",
 name:_.get(a, "service.metadata.name"),
 weight:a.weight
 };
-})), g.create("routes", null, h, l).then(function() {
+})), g.create("routes", null, h, m).then(function() {
 i.addNotification({
 type:"success",
 message:"Route " + h.metadata.name + " was successfully created."
@@ -8733,6 +8742,7 @@ message:"Route " + h.metadata.name + " was successfully created."
 }, function(b) {
 c.disableInputs = !1, i.addNotification({
 type:"error",
+id:"create-route-error",
 message:"An error occurred creating the route.",
 details:a("getErrorDetails")(b)
 });
