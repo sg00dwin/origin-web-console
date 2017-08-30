@@ -35,8 +35,7 @@
 .sidebar-right {
   background-color: @body-bg;
   border-left: 1px solid #dadada;
-  display: none;
-  flex: 0 0 @sidebar-right-width-sm;
+  flex: 0 0 auto;
   position: relative;
   .dl-horizontal {
     margin: 0 0 @line-height-computed;
@@ -69,6 +68,30 @@
   }
 }
 
+@keyframes sidebarRightSlideIn {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    @media (min-width: @screen-sm-min) {
+      width: @sidebar-right-width-sm;
+    }
+    @media (min-width: @screen-md-min) {
+      width: @sidebar-right-width-md;
+    }
+    @media (min-width: @screen-lg-min) {
+      width: @sidebar-right-width-lg;
+    }
+    @media (min-width: @screen-xl-min) {
+      width: @sidebar-right-width-xlg;
+    }
+  }
+}
+
 .show-sidebar-right {
   @media (min-width: @screen-sm-min) {
     display: flex;
@@ -78,17 +101,24 @@
     flex: 1 1 auto;
   }
   .sidebar-right {
+    width: 0;
     @media (min-width: @screen-sm-min) {
-      display: block;
+      width: @sidebar-right-width-sm;
     }
     @media (min-width: @screen-md-min) {
-      flex: 0 0 @sidebar-right-width-md;
+      width: @sidebar-right-width-md;
     }
     @media (min-width: @screen-lg-min) {
-      flex: 0 0 @sidebar-right-width-lg;
+      width: @sidebar-right-width-lg;
     }
     @media (min-width: @screen-xl-min) {
-      flex: 0 0 @sidebar-right-width-xlg;
+      width: @sidebar-right-width-xlg;
+    }
+    &.ng-enter {
+      animation: sidebarRightSlideIn 150ms ease-out normal;
+    }
+    &.ng-leave {
+      animation: sidebarRightSlideIn 150ms ease-in reverse;
     }
     .right-section {
       width: @sidebar-right-width-sm;
