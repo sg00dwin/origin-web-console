@@ -29,6 +29,7 @@ angular.module('openshiftConsole')
         var updateActive = function() {
           _.set($scope, 'sidebar.secondaryOpen',  false);
           _.set($rootScope, 'nav.showMobileNav', false);
+          $scope.activeSecondary = null;
           $scope.activePrimary = _.find($scope.navItems, function(primaryItem) {
             path = $location.path().replace("/project/" + $scope.projectName, "");
             if (itemMatchesPath(primaryItem, path)) {
