@@ -10,11 +10,6 @@
   @media(min-width: @screen-sm-min) {
     top: @navbar-os-header-height-desktop;
   }
-  body:not(.has-project-bar) & {
-    @media(min-width: @screen-sm-min) {
-      display: none;
-    }
-  }
   .has-project-bar & {
     top: (@navbar-os-header-height-mobile + @project-bar-height-mobile);
     @media(min-width: @screen-sm-min) {
@@ -147,12 +142,6 @@
   .nav-pf-secondary-nav .list-group-item > a {
     padding: 4px 0 2px 0;
     margin-left: 20px;
-  }
-  .nav-vertical-primary {
-    display: none;
-    .has-project-bar & {
-      display: block;
-    }
   }
   .tech-preview & {
     top: (@navbar-os-header-height-mobile + @tech-preview-banner-height);

@@ -1,4 +1,6 @@
-<div class="nav-pf-vertical nav-pf-vertical-with-sub-menus"
+<div
+  ng-if="view.hasProject"
+  class="nav-pf-vertical nav-pf-vertical-with-sub-menus"
   ng-class="{
     collapsed: nav.collapsed && !isMobile,
     'hide-mobile-nav': !nav.showMobileNav && isMobile,
@@ -9,6 +11,8 @@
   on-esc="closeNav()">
   <nav class="nav-vertical-primary">
     <ul class="list-group">
+
+      <!-- Primary Nav -->
       <li
         ng-repeat="primaryItem in navItems"
         ng-class="{
@@ -30,6 +34,7 @@
           <span class="{{primaryItem.iconClass}}"></span> <span class="list-group-item-value">{{primaryItem.label}}</span>
         </a>
 
+        <!-- Secondary Nav -->
         <div
           ng-if="primaryItem.secondaryNavSections.length"
           class="secondary-nav-item-pf"
@@ -65,7 +70,6 @@
             </ul>
           </div>
         </div>
-
       </li>
     </ul>
   </nav>

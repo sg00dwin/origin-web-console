@@ -308,7 +308,7 @@ angular.module('openshiftConsole')
           $scope.chromeless = $routeParams.view === "chromeless";
 
           if (projectName && !$scope.chromeless) {
-            $('body').addClass('has-project-bar');
+            _.set($rootScope, 'view.hasProject', true);
             // Check if the user can add to project after switching projects.
             // Assume false until the request completes.
             $scope.canIAddToProject = false;
@@ -328,7 +328,7 @@ angular.module('openshiftConsole')
               updateOptions();
             });
           } else {
-            $('body').removeClass('has-project-bar');
+            _.set($rootScope, 'view.hasProject', false);
           }
         });
 
