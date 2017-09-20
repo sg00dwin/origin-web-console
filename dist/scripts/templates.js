@@ -6653,23 +6653,23 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
 
   $templateCache.put('views/directives/edit-environment-from.html',
     "<ng-form name=\"$ctrl.editEnvironmentFromForm\" novalidate>\n" +
-    "<div ng-if=\"$ctrl.showHeader\" class=\"key-value-editor-entry key-value-editor-entry-header\">\n" +
-    "<div class=\"form-group key-value-editor-header value-header\">\n" +
+    "<div ng-if=\"$ctrl.showHeader\" class=\"environment-from-entry environment-from-editor-entry-header\">\n" +
+    "<div class=\"form-group environment-from-editor-header value-header\">\n" +
     "<div class=\"input-group\">\n" +
     "<span class=\"help-block\">{{$ctrl.selectorPlaceholder}}</span>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div ng-model=\"$ctrl.entries\" class=\"key-value-editor\" as-sortable=\"$ctrl.dragControlListeners\">\n" +
-    "<div class=\"key-value-editor-entry\" ng-class-odd=\"'odd'\" ng-class-even=\"'even'\" ng-repeat=\"entry in $ctrl.envFromEntries\" as-sortable-item>\n" +
-    "<div class=\"form-group key-value-editor-input\" ng-class=\"{ 'has-error': (forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$invalid && forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$touched) }\">\n" +
+    "<div ng-model=\"$ctrl.entries\" class=\"environment-from-editor\" as-sortable=\"$ctrl.dragControlListeners\">\n" +
+    "<div class=\"environment-from-entry\" ng-class-odd=\"'odd'\" ng-class-even=\"'even'\" ng-repeat=\"entry in $ctrl.envFromEntries\" as-sortable-item>\n" +
+    "<div class=\"form-group environment-from-input\" ng-class=\"{ 'has-error': ($ctrl.editEnvironmentFromForm[uniqueForValue(unique, $index)].$invalid && $ctrl.editEnvironmentFromForm[uniqueForValue(unique, $index)].$touched) }\">\n" +
     "<div ng-if=\"$ctrl.isEnvFromReadonly(entry)\" class=\"faux-input-group\">\n" +
     "<div class=\"faux-form-control readonly\">\n" +
-    "Set to values in {{entry.selectedEnvFrom.kind | humanizeKind : true | lowercase}}\n" +
+    "Set to values in {{entry.apiObj.kind | humanizeKind : true | lowercase}}\n" +
     "<span ng-if=\"!('configmaps' | canI : 'get') || !('secrets' | canI : 'get')\">\n" +
     "{{entry.configMapRef.name || entry.secretRef.name}}\n" +
     "</span>\n" +
-    "<a ng-if=\"'configmaps' | canI : 'get'\" ng-href=\"{{entry.selectedEnvFrom | navigateResourceURL}}\">\n" +
+    "<a ng-if=\"('configmaps' | canI : 'get') || ('secrets' | canI : 'get')\" ng-href=\"{{entry.apiObj | navigateResourceURL}}\">\n" +
     "{{entry.configMapRef.name || entry.secretRef.name}}\n" +
     "</a>\n" +
     "</div>\n" +
@@ -6689,15 +6689,15 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "</ui-select>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div>\n" +
-    "<span ng-if=\"(!$ctrl.cannotSort) && ($ctrl.entries.length > 1)\" class=\"fa fa-bars sort-row\" role=\"button\" aria-label=\"Move row\" aria-grabbed=\"false\" as-sortable-item-handle></span>\n" +
+    "</div>\n" +
+    "<div class=\"environment-from-input\">\n" +
+    "<span ng-if=\"!$ctrl.cannotSort && ($ctrl.entries.length > 1)\" class=\"fa fa-bars sort-row\" role=\"button\" aria-label=\"Move row\" aria-grabbed=\"false\" as-sortable-item-handle></span>\n" +
     "<a href=\"\" class=\"pficon pficon-close delete-row as-sortable-item-delete\" role=\"button\" aria-label=\"Delete row\" ng-hide=\"$ctrl.cannotDeleteAny\" ng-click=\"$ctrl.deleteEntry($index, 1)\"></a>\n" +
-    "<a ng-href=\"{{entry.selectedEnvFrom | navigateResourceURL}}\" class=\"pficon\" ng-show=\"entry.selectedEnvFrom\" ng-click=\"$ctrl.viewDetail(entry)\">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>\n" +
+    "<a ng-if=\"!$ctrl.editEnvironmentFromForm.$dirty\" ng-href=\"{{entry.selectedEnvFrom | navigateResourceURL}}\" class=\"pficon\" ng-show=\"entry.selectedEnvFrom\">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=\"key-value-editor-entry form-group\" ng-if=\"(!$ctrl.cannotAdd)\">\n" +
-    "<a href=\"\" class=\"add-row-link\" role=\"button\" aria-label=\"Add row\" ng-click=\"$ctrl.onAddRow()\">{{ $ctrl.addRowLink }}</a>\n" +
+    "<div class=\"environment-from-entry form-group\" ng-if=\"!$ctrl.cannotAdd\">\n" +
+    "<a href=\"\" class=\"add-row-link\" role=\"button\" ng-click=\"$ctrl.onAddRow()\">{{ $ctrl.addRowLink }}</a>\n" +
     "</div>\n" +
     "</div>\n" +
     "</ng-form>"
@@ -6721,7 +6721,7 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "</key-value-editor>\n" +
     "<h4>\n" +
     "Environment From\n" +
-    "<span class=\"pficon pficon-info\" aria-hidden=\"true\" data-toggle=\"tooltip\" data-original-title=\"Environment From lets you add all key-value pairs from a config map or secret as environment variables.\"></span>\n" +
+    "<span class=\"pficon pficon-help\" aria-hidden=\"true\" data-toggle=\"tooltip\" data-original-title=\"Environment From lets you add all key-value pairs from a config map or secret as environment variables.\"></span>\n" +
     "</h4>\n" +
     "<edit-environment-from entries=\"container.envFrom\" selector-placeholder=\"Secret/Config Map\" env-from-selector-options=\"$ctrl.valueFromObjects\" add-row-link=\"Add ALL Values from a Resource\" show-header>\n" +
     "</edit-environment-from>\n" +
@@ -7432,10 +7432,10 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "</div>\n" +
     "</div>\n" +
     "<div class=\"key-value-editor-entry form-group\" ng-if=\"(!cannotAdd)\">\n" +
-    "<a href=\"\" class=\"add-row-link\" role=\"button\" aria-label=\"Add row\" ng-click=\"onAddRow()\">{{ addRowLink }}</a>\n" +
+    "<a href=\"\" class=\"add-row-link\" role=\"button\" ng-click=\"onAddRow()\">{{ addRowLink }}</a>\n" +
     "<span ng-if=\"valueFromSelectorOptions.length\">\n" +
     "<span class=\"action-divider\" aria-hidden=\"true\"> | </span>\n" +
-    "<a href=\"\" class=\"add-row-link\" role=\"button\" aria-label=\"Add row\" ng-click=\"onAddRowWithSelectors()\">{{ addRowWithSelectorsLink }}</a>\n" +
+    "<a href=\"\" class=\"add-row-link\" role=\"button\" ng-click=\"onAddRowWithSelectors()\">{{ addRowWithSelectorsLink }}</a>\n" +
     "</span>\n" +
     "</div>\n" +
     "</div>\n" +

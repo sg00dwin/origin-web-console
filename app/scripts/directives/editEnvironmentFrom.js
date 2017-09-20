@@ -4,28 +4,31 @@
     controller: [
       '$attrs',
       '$filter',
+      '$routeParams',
       'keyValueEditorUtils',
       EditEnvironmentFrom
     ],
     bindings: {
-      addRowLink: '@',
-      entries: '=',
-      envFromSelectorOptions: '<',
-      selectorPlaceholder: '@'
+      addRowLink: '@',              // creates a link to "add row" and sets its text label
+      entries: '=',                 // an array of objects containing configmaps and secrets
+      envFromSelectorOptions: '<',  // dropdown selector options, an array of objects
+      selectorPlaceholder: '@'      // placeholder copy for dropdown selector
     },
     templateUrl: 'views/directives/edit-environment-from.html'
   });
 
   function EditEnvironmentFrom($attrs,
                                $filter,
+                               $routeParams,
                                utils) {
     var ctrl = this;
 
     var canI = $filter('canI');
     var humanizeKind = $filter('humanizeKind');
+    var namespace = $routeParams.project;
+    var uniqueId = _.uniqueId();
 
-    ctrl.$id = _.uniqueId();
-    ctrl.setFocusClass = 'edit-environment-from-set-focus-' + ctrl.$id;
+    ctrl.setFocusClass = 'edit-environment-from-set-focus-' + uniqueId;
 
     var addEntry = function(entries, entry) {
       entries && entries.push(entry || {});
@@ -61,6 +64,16 @@
       return humanizeKind(object.kind);
     };
 
+    //ctrl.uniqueForValue = utils.uniqueForValue;
+    ctrl.dragControlListeners = {
+      accept: function (sourceItemHandleScope, destSortableScope) {
+        return sourceItemHandleScope.itemScope.sortableScope.$id === destSortableScope.$id;
+      },
+      orderChanged: function() {
+        ctrl.editEnvironmentFromForm.$setDirty();
+      }
+    };
+
     ctrl.envFromObjectSelected = function(index, entry, selected) {
       var newEnvFrom = {};
 
@@ -89,7 +102,7 @@
       });
     };
 
-    ctrl.updateEnvFromEntries = function(entries) {
+    var updateEnvFromEntries = function(entries) {
       ctrl.envFromEntries = entries || [];
 
       if(!ctrl.envFromEntries.length) {
@@ -98,12 +111,12 @@
 
       _.each(ctrl.envFromEntries, function(entry) {
         if(entry) {
-          if (entry.configMapRef) {
-            entry.isReadonlyValue = !canI('configmaps', 'get');
+          if(entry.configMapRef && !canI('configmaps', 'get')) {
+            entry.isReadonlyValue = true;
           }
 
-          if (entry.secretRef) {
-            entry.isReadonlyValue = !canI('secrets', 'get');
+          if(entry.secretRef && !canI('secrets', 'get')) {
+            entry.isReadonlyValue = true;
           }
         }
       });
@@ -129,33 +142,36 @@
     };
 
     var findReferenceValueForEntries = function(entries, envFromSelectorOptions) {
-      _.each(envFromSelectorOptions, function(option) {
-        var referenceValue = getReferenceValue(option);
+      ctrl.cannotAdd = (ctrl.isReadonlyAny || _.isEmpty(envFromSelectorOptions));
 
-        if (referenceValue) {
-          _.set(referenceValue, 'selectedEnvFrom', option);
-        }
-      });
+      if(envFromSelectorOptions) {
+        _.each(envFromSelectorOptions, function(option) {
+          var referenceValue = getReferenceValue(option);
+
+          if (referenceValue) {
+            _.set(referenceValue, 'selectedEnvFrom', option);
+          }
+        });
+
+      } else {
+        _.each(entries, function(entry) {
+          var entryKind = (entry.secretRef)? 'Secret' : 'ConfigMap';
+          var entryName = _.get(entry.configMapRef, 'name') || _.get(entry.secretRef, 'name');
+
+          _.set(entry, 'apiObj', {
+            kind: entryKind,
+            metadata: {
+              name: entryName,
+              namespace: namespace
+            }
+          });
+        });
+      }
     };
 
-    angular.extend(ctrl, {
-      dragControlListeners: {
-        accept: function (sourceItemHandleScope, destSortableScope) {
-          return sourceItemHandleScope.itemScope.sortableScope.$id === destSortableScope.$id;
-        },
-        orderChanged: function() {
-          ctrl.editEnvironmentFromForm.$setDirty();
-        }
-      }
-    });
-
     ctrl.$onInit = function() {
-      ctrl.updateEnvFromEntries(ctrl.entries);
-      findReferenceValueForEntries(ctrl.envFromEntries, ctrl.envFromSelectorOptions);
-
-      if('cannotAdd' in $attrs) {
-        ctrl.cannotAdd = true;
-      }
+      updateEnvFromEntries(ctrl.entries);
+      findReferenceValueForEntries(ctrl.entries, ctrl.envFromSelectorOptions);
 
       if('cannotDelete' in $attrs) {
         ctrl.cannotDeleteAny = true;
@@ -180,7 +196,7 @@
 
     ctrl.$onChanges = function(changes) {
       if(changes.entries) {
-        ctrl.updateEnvFromEntries(changes.entries.currentValue);
+        updateEnvFromEntries(changes.entries.currentValue);
       }
 
       if(changes.envFromSelectorOptions) {

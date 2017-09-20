@@ -19,17 +19,17 @@
 
       <div
         class="form-group environment-from-input"
-        ng-class="{ 'has-error': (forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$invalid && forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$touched) }">
+        ng-class="{ 'has-error': ($ctrl.editEnvironmentFromForm[uniqueForValue(unique, $index)].$invalid && $ctrl.editEnvironmentFromForm[uniqueForValue(unique, $index)].$touched) }">
         <div ng-if="$ctrl.isEnvFromReadonly(entry)" class="faux-input-group">
           <div class="faux-form-control readonly">
-            Set to values in {{entry.selectedEnvFrom.kind | humanizeKind : true | lowercase}}
+            Set to values in {{entry.apiObj.kind | humanizeKind : true | lowercase}}
             <span
               ng-if="!('configmaps' | canI : 'get') || !('secrets' | canI : 'get')">
               {{entry.configMapRef.name || entry.secretRef.name}}
             </span>
             <a
-              ng-if="'configmaps' | canI : 'get'"
-              ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}">
+              ng-if="('configmaps' | canI : 'get') || ('secrets' | canI : 'get')"
+              ng-href="{{entry.apiObj | navigateResourceURL}}">
               {{entry.configMapRef.name || entry.secretRef.name}}
             </a>
           </div>
@@ -56,37 +56,35 @@
             </ui-select>
           </div>
         </div>
-
       </div>
       <div class="environment-from-input">
         <span
-        ng-if="(!$ctrl.cannotSort) && ($ctrl.entries.length > 1)"
-        class="fa fa-bars sort-row"
-        role="button"
-        aria-label="Move row"
-        aria-grabbed="false"
-        as-sortable-item-handle></span>
+          ng-if="!$ctrl.cannotSort && ($ctrl.entries.length > 1)"
+          class="fa fa-bars sort-row"
+          role="button"
+          aria-label="Move row"
+          aria-grabbed="false"
+          as-sortable-item-handle></span>
         <a
-        href=""
-        class="pficon pficon-close delete-row as-sortable-item-delete"
-        role="button"
-        aria-label="Delete row"
-        ng-hide="$ctrl.cannotDeleteAny || $ctrl.isReadonlyAny"
-        ng-click="$ctrl.deleteEntry($index, 1)"></a>
+          href=""
+          class="pficon pficon-close delete-row as-sortable-item-delete"
+          role="button"
+          aria-label="Delete row"
+          ng-hide="$ctrl.cannotDeleteAny"
+          ng-click="$ctrl.deleteEntry($index, 1)"></a>
         <a
-        ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}"
-        class="pficon"
-        ng-show="entry.selectedEnvFrom"
-        ng-click="$ctrl.viewDetail(entry)">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>
+          ng-if="!$ctrl.editEnvironmentFromForm.$dirty"
+          ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}"
+          class="pficon"
+          ng-show="entry.selectedEnvFrom">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>
       </div>
     </div>
 
-    <div class="environment-from-entry form-group" ng-if="(!$ctrl.cannotAdd)">
+    <div class="environment-from-entry form-group" ng-if="!$ctrl.cannotAdd">
       <a
         href=""
         class="add-row-link"
         role="button"
-        aria-label="Add row"
         ng-click="$ctrl.onAddRow()">{{ $ctrl.addRowLink }}</a>
     </div>
   </div>
