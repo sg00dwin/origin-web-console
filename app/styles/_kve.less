@@ -107,7 +107,8 @@
     }
   }
 
-  .key-value-editor-buttons {
+  .key-value-editor-buttons,
+  .environment-from-editor-button {
     position: absolute;
     right: 0;
     top: 0;
@@ -121,10 +122,21 @@
     position: relative;
     table-layout: fixed;
     width: 100%;
+    @media(min-width: @screen-md-min)  {
+      .environment-from-editor-button {
+        float: left;
+        padding-right: 5px;
+        position: relative;
+        width: 50%;
+      }
+    }
     .environment-from-input {
       float: left;
       padding-right: 5px;
-      width: 50%;
+      width: 100%;
+      @media(min-width: @screen-md-min) {
+        width: 50%;
+      }
       .faux-input-group,
       .ui-select {
         float: left;

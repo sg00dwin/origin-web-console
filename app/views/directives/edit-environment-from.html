@@ -57,7 +57,7 @@
           </div>
         </div>
       </div>
-      <div class="environment-from-input">
+      <div class="environment-from-editor-button">
         <span
           ng-if="!$ctrl.cannotSort && ($ctrl.entries.length > 1)"
           class="fa fa-bars sort-row"
@@ -72,11 +72,11 @@
           aria-label="Delete row"
           ng-hide="$ctrl.cannotDeleteAny"
           ng-click="$ctrl.deleteEntry($index, 1)"></a>
-        <a
+        <!-- <a
           ng-if="!$ctrl.editEnvironmentFromForm.$dirty"
           ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}"
           class="pficon"
-          ng-show="entry.selectedEnvFrom">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>
+          ng-show="entry.selectedEnvFrom">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a> -->
       </div>
     </div>
 
