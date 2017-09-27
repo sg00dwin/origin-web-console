@@ -1,24 +1,24 @@
 <ng-form name="$ctrl.editEnvironmentFromForm" novalidate>
   <div
     ng-if="$ctrl.showHeader"
-    class="key-value-editor-entry key-value-editor-entry-header">
-    <div class="form-group key-value-editor-header value-header">
+    class="environment-from-entry environment-from-editor-entry-header">
+    <div class="form-group environment-from-editor-header value-header">
       <div class="input-group">
         <span class="help-block">{{$ctrl.selectorPlaceholder}}</span>
       </div>
     </div>
   </div>
 
-  <div ng-model="$ctrl.entries" class="key-value-editor" as-sortable="$ctrl.dragControlListeners">
+  <div ng-model="$ctrl.entries" class="environment-from-editor" as-sortable="$ctrl.dragControlListeners">
     <div
-      class="key-value-editor-entry"
+      class="environment-from-entry"
       ng-class-odd="'odd'"
       ng-class-even="'even'"
       ng-repeat="entry in $ctrl.envFromEntries"
       as-sortable-item>
 
       <div
-        class="form-group key-value-editor-input"
+        class="form-group environment-from-input"
         ng-class="{ 'has-error': (forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$invalid && forms.editEnvironmentFrom[uniqueForValue(unique, $index)].$touched) }">
         <div ng-if="$ctrl.isEnvFromReadonly(entry)" class="faux-input-group">
           <div class="faux-form-control readonly">
@@ -57,31 +57,31 @@
           </div>
         </div>
 
-        <div>
-          <span
-            ng-if="(!$ctrl.cannotSort) && ($ctrl.entries.length > 1)"
-            class="fa fa-bars sort-row"
-            role="button"
-            aria-label="Move row"
-            aria-grabbed="false"
-            as-sortable-item-handle></span>
-          <a
-            href=""
-            class="pficon pficon-close delete-row as-sortable-item-delete"
-            role="button"
-            aria-label="Delete row"
-            ng-hide="$ctrl.cannotDeleteAny"
-            ng-click="$ctrl.deleteEntry($index, 1)"></a>
-          <a
-            ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}"
-            class="pficon"
-            ng-show="entry.selectedEnvFrom"
-            ng-click="$ctrl.viewDetail(entry)">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>
-        </div>
+      </div>
+      <div class="environment-from-input">
+        <span
+        ng-if="(!$ctrl.cannotSort) && ($ctrl.entries.length > 1)"
+        class="fa fa-bars sort-row"
+        role="button"
+        aria-label="Move row"
+        aria-grabbed="false"
+        as-sortable-item-handle></span>
+        <a
+        href=""
+        class="pficon pficon-close delete-row as-sortable-item-delete"
+        role="button"
+        aria-label="Delete row"
+        ng-hide="$ctrl.cannotDeleteAny || $ctrl.isReadonlyAny"
+        ng-click="$ctrl.deleteEntry($index, 1)"></a>
+        <a
+        ng-href="{{entry.selectedEnvFrom | navigateResourceURL}}"
+        class="pficon"
+        ng-show="entry.selectedEnvFrom"
+        ng-click="$ctrl.viewDetail(entry)">View {{entry.selectedEnvFrom.kind | humanizeKind : true}}</a>
       </div>
     </div>
 
-    <div class="key-value-editor-entry form-group" ng-if="(!$ctrl.cannotAdd)">
+    <div class="environment-from-entry form-group" ng-if="(!$ctrl.cannotAdd)">
       <a
         href=""
         class="add-row-link"
@@ -91,4 +91,3 @@
     </div>
   </div>
 </ng-form>
-
