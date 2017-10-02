@@ -5,6 +5,7 @@
       '$attrs',
       '$filter',
       'keyValueEditorUtils',
+      'SecretsService',
       EditEnvironmentFrom
     ],
     bindings: {
@@ -18,7 +19,8 @@
 
   function EditEnvironmentFrom($attrs,
                                $filter,
-                               utils) {
+                               utils,
+                               SecretsService) {
     var ctrl = this;
 
     var canI = $filter('canI');
@@ -26,6 +28,16 @@
     var uniqueId = _.uniqueId();
 
     ctrl.setFocusClass = 'edit-environment-from-set-focus-' + uniqueId;
+
+    ctrl.viewOverlayPanel = function(entry) {
+      ctrl.decodedSecretData = SecretsService.decodeSecretData(entry.data);
+      ctrl.overlayPaneEntryDetails = entry;
+      ctrl.overlayPanelVisible = true;
+    };
+
+    ctrl.closeOverlayPanel = function() {
+      ctrl.overlayPanelVisible = false;
+    };
 
     var addEntry = function(entries, entry) {
       entries && entries.push(entry || {});
@@ -61,7 +73,6 @@
       return humanizeKind(object.kind);
     };
 
-    //ctrl.uniqueForValue = utils.uniqueForValue;
     ctrl.dragControlListeners = {
       accept: function (sourceItemHandleScope, destSortableScope) {
         return sourceItemHandleScope.itemScope.sortableScope.$id === destSortableScope.$id;
