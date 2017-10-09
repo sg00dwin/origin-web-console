@@ -9207,8 +9207,12 @@ a.onAddRow = function() {
 s(a.envFromEntries), n.setFocusOn("." + a.setFocusClass);
 }, a.deleteEntry = function(e, t) {
 a.envFromEntries && !a.envFromEntries.length || (a.envFromEntries.splice(e, t), !a.envFromEntries.length && a.addRowLink && s(a.envFromEntries), a.updateEntries(a.envFromEntries), a.editEnvironmentFromForm.$setDirty());
+}, a.hasOptions = function() {
+return !_.isEmpty(a.envFromSelectorOptions);
+}, a.hasEntries = function() {
+return "[{}]" !== angular.toJson(a.entries) && a.entries && a.entries.length >= 1;
 }, a.isEnvFromReadonly = function(e) {
-return a.isReadonlyAny || !0 === e.isReadonlyValue || (e.secretRef || e.configMapRef) && !e.selectedEnvFrom || _.isEmpty(a.envFromSelectorOptions);
+return !0 === a.isReadonly || e && !0 === e.isReadonly;
 }, a.groupByKind = function(e) {
 return o(e.kind);
 }, a.dragControlListeners = {
@@ -9239,49 +9243,31 @@ return e.secretRef || e.configMapRef;
 });
 };
 var c = function(e) {
-a.envFromEntries = e || [], a.envFromEntries.length || s(a.envFromEntries), _.each(a.envFromEntries, function(e) {
-e && (e.configMapRef && !r("configmaps", "get") && (e.isReadonlyValue = !0), e.secretRef && !r("secrets", "get") && (e.isReadonlyValue = !0));
-});
-}, l = function(e) {
-var t;
-switch (e.kind) {
-case "ConfigMap":
-t = _.find(a.envFromEntries, {
-configMapRef: {
+var t = _.camelCase(e.kind) + "Ref";
+return _.filter(a.envFromEntries, [ t, {
 name: e.metadata.name
-}
+} ]);
+}, l = function() {
+a.envFromEntries = a.entries || [], a.envFromEntries.length || s(a.envFromEntries), _.each(a.envFromEntries, function(e) {
+e && (e.configMapRef && !r("configmaps", "get") && (e.isReadonly = !0), e.secretRef && !r("secrets", "get") && (e.isReadonly = !0));
+}), _.each(a.envFromSelectorOptions, function(e) {
+_.each(c(e), function(t, n) {
+_.set(t, "selectedEnvFrom", e), n > 0 && _.set(t, "duplicateEnvFrom", !0);
 });
-break;
-
-case "Secret":
-t = _.find(a.envFromEntries, {
-secretRef: {
-name: e.metadata.name
-}
-});
-}
-return t;
-};
-a.checkEntries = function(e, t) {
-return e !== t && !!l(e);
-};
-var u = function(e, t) {
-a.cannotAdd = a.isReadonlyAny || _.isEmpty(t), t && _.each(t, function(e) {
-var t = l(e);
-t && _.set(t, "selectedEnvFrom", e);
 });
 };
 a.$onInit = function() {
-c(a.entries), u(a.entries, a.envFromSelectorOptions), "cannotDelete" in e && (a.cannotDeleteAny = !0), "cannotSort" in e && (a.cannotSort = !0), "isReadonly" in e && (a.isReadonlyAny = !0), "showHeader" in e && (a.showHeader = !0), a.envFromEntries && !a.envFromEntries.length && s(a.envFromEntries);
+l(), "cannotDelete" in e && (a.cannotDeleteAny = !0), "cannotSort" in e && (a.cannotSort = !0), "showHeader" in e && (a.showHeader = !0), a.envFromEntries && !a.envFromEntries.length && s(a.envFromEntries);
 }, a.$onChanges = function(e) {
-e.entries && c(e.entries.currentValue), e.envFromSelectorOptions && u(a.envFromEntries, e.envFromSelectorOptions.currentValue);
+(e.entries || e.envFromSelectorOptions) && l();
 };
 } ],
 bindings: {
 addRowLink: "@",
 entries: "=",
 envFromSelectorOptions: "<",
-selectorPlaceholder: "@"
+selectorPlaceholder: "@",
+isReadonly: "<?"
 },
 templateUrl: "views/directives/edit-environment-from.html"
 });

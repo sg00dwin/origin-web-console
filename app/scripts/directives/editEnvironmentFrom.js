@@ -11,7 +11,8 @@
       addRowLink: '@',              // creates a link to "add row" and sets its text label
       entries: '=',                 // an array of objects containing configmaps and secrets
       envFromSelectorOptions: '<',  // dropdown selector options, an array of objects
-      selectorPlaceholder: '@'      // placeholder copy for dropdown selector
+      selectorPlaceholder: '@',     // placeholder copy for dropdown selector
+      isReadonly: '<?'              // display as read only values
     },
     templateUrl: 'views/directives/edit-environment-from.html'
   });
@@ -20,7 +21,6 @@
                                $filter,
                                utils) {
     var ctrl = this;
-
     var canI = $filter('canI');
     var humanizeKind = $filter('humanizeKind');
     var uniqueId = _.uniqueId();
@@ -51,6 +51,7 @@
       }
 
       ctrl.envFromEntries.splice(start, deleteCount);
+
       if(!ctrl.envFromEntries.length && ctrl.addRowLink) {
         addEntry(ctrl.envFromEntries);
       }
@@ -59,11 +60,16 @@
       ctrl.editEnvironmentFromForm.$setDirty();
     };
 
+    ctrl.hasOptions = function() {
+      return !_.isEmpty(ctrl.envFromSelectorOptions);
+    };
+
+    ctrl.hasEntries = function() {
+      return angular.toJson(ctrl.entries) !== '[{}]' && ctrl.entries && ctrl.entries.length >= 1;
+    };
+
     ctrl.isEnvFromReadonly = function(entry) {
-      return ctrl.isReadonlyAny ||
-        entry.isReadonlyValue === true ||
-        ((entry.secretRef || entry.configMapRef) && !entry.selectedEnvFrom) ||
-        _.isEmpty(ctrl.envFromSelectorOptions);
+      return ctrl.isReadonly === true || entry && entry.isReadonly === true;
     };
 
     ctrl.groupByKind = function(object) {
@@ -107,8 +113,13 @@
       });
     };
 
-    var updateEnvFromEntries = function(entries) {
-      ctrl.envFromEntries = entries || [];
+    var getReferenceValues = function(option) {
+      var kindRef = _.camelCase(option.kind) + 'Ref';
+      return _.filter(ctrl.envFromEntries, [kindRef, {name:option.metadata.name}]);
+    };
+
+    var updateEnvFromEntries = function() {
+      ctrl.envFromEntries = ctrl.entries || [];
 
       if(!ctrl.envFromEntries.length) {
         addEntry(ctrl.envFromEntries);
@@ -117,56 +128,28 @@
       _.each(ctrl.envFromEntries, function(entry) {
         if(entry) {
           if(entry.configMapRef && !canI('configmaps', 'get')) {
-            entry.isReadonlyValue = true;
+            entry.isReadonly = true;
           }
 
           if(entry.secretRef && !canI('secrets', 'get')) {
-            entry.isReadonlyValue = true;
+            entry.isReadonly = true;
           }
         }
       });
-    };
 
-    var getReferenceValue = function(option) {
-      var referenceValue;
+      _.each(ctrl.envFromSelectorOptions, function(option) {
+        _.each(getReferenceValues(option), function(val, i) {
+          _.set(val, 'selectedEnvFrom', option);
 
-      switch(option.kind) {
-        case 'ConfigMap':
-          referenceValue = _.find(ctrl.envFromEntries, {configMapRef: {name: option.metadata.name}});
-          break;
-        case 'Secret':
-          referenceValue = _.find(ctrl.envFromEntries, {secretRef: {name: option.metadata.name}});
-          break;
-      }
-
-      return referenceValue;
-    };
-
-    ctrl.checkEntries = function(option, entrySelectedEnvFrom) {
-      if(option === entrySelectedEnvFrom) {
-        return false;
-      }
-
-      return !!(getReferenceValue(option));
-    };
-
-    var findReferenceValueForEntries = function(entries, envFromSelectorOptions) {
-      ctrl.cannotAdd = (ctrl.isReadonlyAny || _.isEmpty(envFromSelectorOptions));
-
-      if(envFromSelectorOptions) {
-        _.each(envFromSelectorOptions, function(option) {
-          var referenceValue = getReferenceValue(option);
-
-          if (referenceValue) {
-            _.set(referenceValue, 'selectedEnvFrom', option);
+          if (i > 0) {
+            _.set(val, 'duplicateEnvFrom', true);
           }
         });
-      }
+      });
     };
 
     ctrl.$onInit = function() {
-      updateEnvFromEntries(ctrl.entries);
-      findReferenceValueForEntries(ctrl.entries, ctrl.envFromSelectorOptions);
+      updateEnvFromEntries();
 
       if('cannotDelete' in $attrs) {
         ctrl.cannotDeleteAny = true;
@@ -174,10 +157,6 @@
 
       if('cannotSort' in $attrs) {
         ctrl.cannotSort = true;
-      }
-
-      if('isReadonly' in $attrs) {
-        ctrl.isReadonlyAny = true;
       }
 
       if('showHeader' in $attrs) {
@@ -190,12 +169,8 @@
     };
 
     ctrl.$onChanges = function(changes) {
-      if(changes.entries) {
-        updateEnvFromEntries(changes.entries.currentValue);
-      }
-
-      if(changes.envFromSelectorOptions) {
-        findReferenceValueForEntries(ctrl.envFromEntries, changes.envFromSelectorOptions.currentValue);
+      if(changes.entries || changes.envFromSelectorOptions) {
+        updateEnvFromEntries();
       }
     };
   }
