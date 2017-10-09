@@ -67,11 +67,12 @@
           role="button"
           aria-label="Delete row"
           ng-click="$ctrl.deleteEntry($index, 1)"></a>
+      </div>
+      <div class="environment-from-view-details">
         <a
           ng-if="entry.selectedEnvFrom"
           href=""
-          ng-click="$ctrl.viewOverlayPanel(entry.selectedEnvFrom)"
-          class="pficon">View Details</a>
+          ng-click="$ctrl.viewOverlayPanel(entry.selectedEnvFrom)">View Details</a>
       </div>
     </div>
 
