@@ -65,7 +65,9 @@
     };
 
     ctrl.hasEntries = function() {
-      return angular.toJson(ctrl.entries) !== '[{}]' && ctrl.entries && ctrl.entries.length >= 1;
+      return _.some(ctrl.entries, function(entry) {
+        return _.get(entry, 'configMapRef.name') || _.get(entry, 'secretRef.name');
+      });
     };
 
     ctrl.isEnvFromReadonly = function(entry) {
@@ -113,38 +115,50 @@
       });
     };
 
-    var getReferenceValues = function(option) {
-      var kindRef = _.camelCase(option.kind) + 'Ref';
-      return _.filter(ctrl.envFromEntries, [kindRef, {name:option.metadata.name}]);
-    };
-
     var updateEnvFromEntries = function() {
+      var optionsByName = {};
+      var entriesMap = {};
+
       ctrl.envFromEntries = ctrl.entries || [];
 
       if(!ctrl.envFromEntries.length) {
         addEntry(ctrl.envFromEntries);
       }
+      _.each(ctrl.envFromSelectorOptions, function(option) {
+        optionsByName[option.metadata.name] = option;
+      });
 
       _.each(ctrl.envFromEntries, function(entry) {
-        if(entry) {
-          if(entry.configMapRef && !canI('configmaps', 'get')) {
-            entry.isReadonly = true;
+        var refType;
+        var entryType;
+
+        if (entry.configMapRef) {
+          refType = 'configMapRef';
+          entryType = 'configmaps';
+        }
+
+        if(entry.secretRef) {
+          refType = 'secretRef';
+          entryType = 'secrets';
+        }
+
+        if (refType && entryType) {
+          var refTypeName = entry[refType].name;
+
+          if (refTypeName in optionsByName) {
+            entry.selectedEnvFrom = optionsByName[refTypeName];
           }
 
-          if(entry.secretRef && !canI('secrets', 'get')) {
+          if (refTypeName in entriesMap) {
+            entry.duplicateEnvFrom = true;
+          } else {
+            entriesMap[refTypeName] = true;
+          }
+
+          if(!canI(entryType, 'get')) {
             entry.isReadonly = true;
           }
         }
-      });
-
-      _.each(ctrl.envFromSelectorOptions, function(option) {
-        _.each(getReferenceValues(option), function(val, i) {
-          _.set(val, 'selectedEnvFrom', option);
-
-          if (i > 0) {
-            _.set(val, 'duplicateEnvFrom', true);
-          }
-        });
       });
     };
 

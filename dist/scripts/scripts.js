@@ -9210,7 +9210,9 @@ a.envFromEntries && !a.envFromEntries.length || (a.envFromEntries.splice(e, t), 
 }, a.hasOptions = function() {
 return !_.isEmpty(a.envFromSelectorOptions);
 }, a.hasEntries = function() {
-return "[{}]" !== angular.toJson(a.entries) && a.entries && a.entries.length >= 1;
+return _.some(a.entries, function(e) {
+return _.get(e, "configMapRef.name") || _.get(e, "secretRef.name");
+});
 }, a.isEnvFromReadonly = function(e) {
 return !0 === a.isReadonly || e && !0 === e.isReadonly;
 }, a.groupByKind = function(e) {
@@ -9242,24 +9244,22 @@ a.entries = _.filter(e, function(e) {
 return e.secretRef || e.configMapRef;
 });
 };
-var c = function(e) {
-var t = _.camelCase(e.kind) + "Ref";
-return _.filter(a.envFromEntries, [ t, {
-name: e.metadata.name
-} ]);
-}, l = function() {
-a.envFromEntries = a.entries || [], a.envFromEntries.length || s(a.envFromEntries), _.each(a.envFromEntries, function(e) {
-e && (e.configMapRef && !r("configmaps", "get") && (e.isReadonly = !0), e.secretRef && !r("secrets", "get") && (e.isReadonly = !0));
-}), _.each(a.envFromSelectorOptions, function(e) {
-_.each(c(e), function(t, n) {
-_.set(t, "selectedEnvFrom", e), n > 0 && _.set(t, "duplicateEnvFrom", !0);
-});
+var c = function() {
+var e = {}, t = {};
+a.envFromEntries = a.entries || [], a.envFromEntries.length || s(a.envFromEntries), _.each(a.envFromSelectorOptions, function(t) {
+e[t.metadata.name] = t;
+}), _.each(a.envFromEntries, function(n) {
+var a, o;
+if (n.configMapRef && (a = "configMapRef", o = "configmaps"), n.secretRef && (a = "secretRef", o = "secrets"), a && o) {
+var i = n[a].name;
+i in e && (n.selectedEnvFrom = e[i]), i in t ? n.duplicateEnvFrom = !0 : t[i] = !0, r(o, "get") || (n.isReadonly = !0);
+}
 });
 };
 a.$onInit = function() {
-l(), "cannotDelete" in e && (a.cannotDeleteAny = !0), "cannotSort" in e && (a.cannotSort = !0), "showHeader" in e && (a.showHeader = !0), a.envFromEntries && !a.envFromEntries.length && s(a.envFromEntries);
+c(), "cannotDelete" in e && (a.cannotDeleteAny = !0), "cannotSort" in e && (a.cannotSort = !0), "showHeader" in e && (a.showHeader = !0), a.envFromEntries && !a.envFromEntries.length && s(a.envFromEntries);
 }, a.$onChanges = function(e) {
-(e.entries || e.envFromSelectorOptions) && l();
+(e.entries || e.envFromSelectorOptions) && c();
 };
 } ],
 bindings: {
