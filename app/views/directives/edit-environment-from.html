@@ -29,17 +29,18 @@
         </div>
 
         <div ng-if="!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasOptions()">
-          <div class="ui-select" ng-class="{'duplicate': entry.duplicateEnvFrom}">
+          <div class="ui-select">
             <ui-select ng-model="entry.selectedEnvFrom"
                        ng-required="entry.selectedEnvFrom"
                        on-select="$ctrl.envFromObjectSelected($index, entry, $select.selected)"
-                       ng-class="{'{{$ctrl.setFocusClass}}' : $last}">
+                       ng-class="{'has-warning': entry.duplicateEnvFrom, '{{$ctrl.setFocusClass}}' : $last}">
               <ui-select-match placeholder="Select a resource">
                 <span>
                   {{$select.selected.metadata.name}}
                   <small class="text-muted">&ndash; {{$select.selected.kind | humanizeKind : true}}</small>
                 </span>
               </ui-select-match>
+              <label class="has-warning">Note this is a duplicate</label>
               <ui-select-choices
                 repeat="source in $ctrl.envFromSelectorOptions | filter : { metadata: { name: $select.search } } track by (source | uid)"
                 group-by="$ctrl.groupByKind">
@@ -47,6 +48,11 @@
               </ui-select-choices>
             </ui-select>
           </div>
+        </div>
+        <div ng-if="entry.duplicateEnvFrom" class="has-warning">
+          <span class="help-block">
+            This is a duplicate.
+          </span>
         </div>
       </div>
 
@@ -68,8 +74,8 @@
       </div>
       <div class="environment-from-view-details">
         <a
-          ng-if="entry.selectedEnvFrom"
           href=""
+          ng-if="entry.selectedEnvFrom"
           ng-click="$ctrl.viewOverlayPanel(entry.selectedEnvFrom)">View Details</a>
       </div>
     </div>
@@ -123,4 +129,3 @@
     </div>
   </overlay-panel>
 </ng-form>
-
