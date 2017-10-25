@@ -5907,7 +5907,7 @@ kubernetes-container-terminal .terminal-actions .spinner{top:5px}
 @media (min-width:992px){.environment-from-editor .key-value-editor-input .ui-select,.key-value-editor .key-value-editor-input .ui-select{float:left;width:50%}
 .environment-from-editor .key-value-editor-input .ui-select+.ui-select,.key-value-editor .key-value-editor-input .ui-select+.ui-select{padding-top:0;padding-left:5px}
 }
-.key-value-editor .key-value-editor-input,.key-value-editor-header{float:left;margin-bottom:0;padding-right:5px;width:50%}
+.environment-from-editor-header,.key-value-editor .key-value-editor-input,.key-value-editor-header{float:left;margin-bottom:0;padding-right:5px;width:50%}
 .membership .content-pane,.membership .content-pane .col-add-role{width:100%}
 .environment-from-editor-entry-header,.key-value-editor-entry-header{padding-right:52px}
 .environment-from-editor-header,.key-value-editor-header{margin-bottom:5px}
