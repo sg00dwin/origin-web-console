@@ -87,6 +87,11 @@
       }
     };
 
+    ctrl.removePrefix = function (entry) {
+      delete entry.prefix;
+      ctrl.editEnvironmentFromForm.$setDirty();
+    };
+
     ctrl.envFromObjectSelected = function(index, entry, selected) {
       var newEnvFrom = {};
 
@@ -105,6 +110,10 @@
           break;
       }
 
+      if (entry.prefix) {
+        newEnvFrom.prefix = entry.prefix;
+      }
+
       _.assign(ctrl.envFromEntries[index], newEnvFrom);
       ctrl.updateEntries(ctrl.envFromEntries);
     };
@@ -121,7 +130,7 @@
 
       ctrl.envFromEntries = ctrl.entries || [];
 
-      if(!ctrl.envFromEntries.length) {
+      if (!ctrl.envFromEntries.length) {
         addEntry(ctrl.envFromEntries);
       }
 

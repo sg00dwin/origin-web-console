@@ -6700,7 +6700,25 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "<div ng-if=\"$ctrl.showHeader\" class=\"environment-from-entry environment-from-editor-entry-header\">\n" +
     "<div class=\"form-group environment-from-editor-header value-header\">\n" +
     "<div class=\"input-group\">\n" +
-    "<span class=\"help-block\">{{$ctrl.selectorPlaceholder}}</span>\n" +
+    "{{$ctrl.selectorPlaceholder}}\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group environment-from-editor-header value-header\">\n" +
+    "<div class=\"input-group\">\n" +
+    "Prefix\n" +
+    "<small class=\"pficon pficon-help\" aria-hidden=\"true\" data-toggle=\"tooltip\" data-original-title=\"Optional prefix added to each environment variable name for this resource.\"></small>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div ng-if=\"showHeader\" class=\"key-value-editor-entry key-value-editor-entry-header\">\n" +
+    "<div class=\"form-group key-value-editor-header key-header\">\n" +
+    "<div class=\"input-group\">\n" +
+    "<span class=\"help-block\">{{keyPlaceholder}}</span>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"form-group key-value-editor-header value-header\">\n" +
+    "<div class=\"input-group\">\n" +
+    "<span class=\"help-block\">{{valuePlaceholder}}</span>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -6713,8 +6731,13 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "</div>\n" +
     "<div ng-if=\"entry.configMapRef.name || entry.secretRef.name\" class=\"faux-form-control readonly\">\n" +
     "Use all keys and values from\n" +
-    "<span ng-if=\"entry.configMapRef.name\">config map {{entry.configMapRef.name}}</span>\n" +
-    "<span ng-if=\"entry.secretRef.name\">secret {{entry.secretRef.name}}</span>\n" +
+    "<span ng-if=\"entry.prefix\">prefixed</span>\n" +
+    "<span ng-if=\"entry.configMapRef.name\">config map\n" +
+    "<span ng-if=\"entry.prefix\">\"{{entry.prefix}}\"</span>\n" +
+    "{{entry.configMapRef.name}}</span>\n" +
+    "<span ng-if=\"entry.secretRef.name\">secret\n" +
+    "<span ng-if=\"entry.prefix\">\"{{entry.prefix}}\"</span>\n" +
+    "{{entry.secretRef.name}}</span>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div ng-if=\"!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasOptions()\">\n" +
@@ -6733,12 +6756,18 @@ angular.module('openshiftConsoleTemplates', []).run(['$templateCache', function(
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
+    "<div class=\"form-group environment-from-input\">\n" +
+    "<div class=\"environment-from-input\" ng-if=\"!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasOptions()\">\n" +
+    "<label for=\"envfrom-prefix-{{$index}}\" class=\"sr-only\">Prefix</label>\n" +
+    "<input type=\"text\" class=\"form-control\" placeholder=\"Add prefix\" id=\"envfrom-prefix-{{$index}}\" name=\"envfrom-prefix-{{$index}}\" ng-model=\"entry.prefix\"/>\n" +
+    "</div>\n" +
     "<div ng-if=\"!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasEntries()\" class=\"environment-from-editor-button\">\n" +
     "<span ng-if=\"!$ctrl.cannotSort && $ctrl.entries.length > 1\" class=\"fa fa-bars sort-row\" role=\"button\" aria-label=\"Move row\" aria-grabbed=\"false\" as-sortable-item-handle></span>\n" +
     "<a ng-if=\"!$ctrl.cannotDeleteAny\" href=\"\" class=\"pficon pficon-close delete-row as-sortable-item-delete\" role=\"button\" aria-label=\"Delete row\" ng-click=\"$ctrl.deleteEntry($index, 1)\"></a>\n" +
     "</div>\n" +
     "<div class=\"environment-from-view-details\">\n" +
-    "<a href=\"\" ng-if=\"entry.selectedEnvFrom\" ng-click=\"$ctrl.viewOverlayPanel(entry.selectedEnvFrom)\">View Details</a>\n" +
+    "<a ng-if=\"entry.selectedEnvFrom\" href=\"\" ng-click=\"$ctrl.viewOverlayPanel(entry.selectedEnvFrom)\">View Details</a>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"environment-from-entry form-group\" ng-if=\"!$ctrl.isEnvFromReadonly() && $ctrl.hasOptions()\">\n" +

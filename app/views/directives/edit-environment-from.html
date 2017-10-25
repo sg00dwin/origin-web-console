@@ -4,10 +4,35 @@
     class="environment-from-entry environment-from-editor-entry-header">
     <div class="form-group environment-from-editor-header value-header">
       <div class="input-group">
-        <span class="help-block">{{$ctrl.selectorPlaceholder}}</span>
+        {{$ctrl.selectorPlaceholder}}
+      </div>
+    </div>
+    <div class="form-group environment-from-editor-header value-header">
+      <div class="input-group">
+        Prefix
+        <small class="pficon pficon-help"
+               aria-hidden="true"
+               data-toggle="tooltip"
+               data-original-title="Optional prefix added to each environment variable name for this resource."></small>
       </div>
     </div>
   </div>
+
+  <div
+    ng-if="showHeader"
+    class="key-value-editor-entry key-value-editor-entry-header">
+    <div class="form-group key-value-editor-header key-header">
+      <div class="input-group">
+        <span class="help-block">{{keyPlaceholder}}</span>
+      </div>
+    </div>
+    <div class="form-group key-value-editor-header value-header">
+      <div class="input-group">
+        <span class="help-block">{{valuePlaceholder}}</span>
+      </div>
+    </div>
+  </div>
+
   <div ng-model="$ctrl.entries" class="environment-from-editor" as-sortable="$ctrl.dragControlListeners">
     <div
       class="environment-from-entry"
@@ -23,8 +48,13 @@
           </div>
           <div ng-if="entry.configMapRef.name || entry.secretRef.name" class="faux-form-control readonly">
             Use all keys and values from
-            <span ng-if="entry.configMapRef.name">config map {{entry.configMapRef.name}}</span>
-            <span ng-if="entry.secretRef.name">secret {{entry.secretRef.name}}</span>
+            <span ng-if="entry.prefix">prefixed</span>
+            <span ng-if="entry.configMapRef.name">config map
+              <span ng-if="entry.prefix">"{{entry.prefix}}"</span>
+              {{entry.configMapRef.name}}</span>
+            <span ng-if="entry.secretRef.name">secret
+              <span ng-if="entry.prefix">"{{entry.prefix}}"</span>
+              {{entry.secretRef.name}}</span>
           </div>
         </div>
 
@@ -50,27 +80,40 @@
         </div>
       </div>
 
-      <div ng-if="!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasEntries()" class="environment-from-editor-button">
-        <span
-          ng-if="!$ctrl.cannotSort && $ctrl.entries.length > 1"
-          class="fa fa-bars sort-row"
-          role="button"
-          aria-label="Move row"
-          aria-grabbed="false"
-          as-sortable-item-handle></span>
-        <a
-          ng-if="!$ctrl.cannotDeleteAny"
-          href=""
-          class="pficon pficon-close delete-row as-sortable-item-delete"
-          role="button"
-          aria-label="Delete row"
-          ng-click="$ctrl.deleteEntry($index, 1)"></a>
-      </div>
-      <div class="environment-from-view-details">
-        <a
-          href=""
-          ng-if="entry.selectedEnvFrom"
-          ng-click="$ctrl.viewOverlayPanel(entry.selectedEnvFrom)">View Details</a>
+      <div class="form-group environment-from-input">
+        <div class="environment-from-input" ng-if="!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasOptions()">
+          <label for="envfrom-prefix-{{$index}}" class="sr-only">Prefix</label>
+          <input type="text"
+                 class="form-control"
+                 placeholder="Add prefix"
+                 id="envfrom-prefix-{{$index}}"
+                 name="envfrom-prefix-{{$index}}"
+                 ng-model="entry.prefix"/>
+        </div>
+
+        <div ng-if="!$ctrl.isEnvFromReadonly(entry) && $ctrl.hasEntries()" class="environment-from-editor-button">
+          <span
+            ng-if="!$ctrl.cannotSort && $ctrl.entries.length > 1"
+            class="fa fa-bars sort-row"
+            role="button"
+            aria-label="Move row"
+            aria-grabbed="false"
+            as-sortable-item-handle></span>
+          <a
+            ng-if="!$ctrl.cannotDeleteAny"
+            href=""
+            class="pficon pficon-close delete-row as-sortable-item-delete"
+            role="button"
+            aria-label="Delete row"
+            ng-click="$ctrl.deleteEntry($index, 1)"></a>
+        </div>
+
+        <div class="environment-from-view-details">
+          <a
+            ng-if="entry.selectedEnvFrom"
+            href=""
+            ng-click="$ctrl.viewOverlayPanel(entry.selectedEnvFrom)">View Details</a>
+        </div>
       </div>
     </div>
 

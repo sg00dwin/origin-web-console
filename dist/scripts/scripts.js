@@ -9243,6 +9243,8 @@ return e.itemScope.sortableScope.$id === t.$id;
 orderChanged: function() {
 a.editEnvironmentFromForm.$setDirty();
 }
+}, a.removePrefix = function(e) {
+delete e.prefix, a.editEnvironmentFromForm.$setDirty();
 }, a.envFromObjectSelected = function(e, t, n) {
 var r = {};
 switch (n.kind) {
@@ -9257,7 +9259,7 @@ r.configMapRef = {
 name: n.metadata.name
 }, delete a.envFromEntries[e].secretRef;
 }
-_.assign(a.envFromEntries[e], r), a.updateEntries(a.envFromEntries);
+t.prefix && (r.prefix = t.prefix), _.assign(a.envFromEntries[e], r), a.updateEntries(a.envFromEntries);
 }, a.updateEntries = function(e) {
 a.entries = _.filter(e, function(e) {
 return e.secretRef || e.configMapRef;
